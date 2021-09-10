@@ -1,0 +1,30 @@
+{
+    "name": "ahmadsyamim/theme-module",
+    "description": "",
+    "type": "laravel-module",
+    "authors": [
+        {
+            "name": "Ahmad Syamim",
+            "email": "ahmad.syamim@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Theme\\": ""
+        }
+    },
+    "require": {
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "@php artisan vendor:publish --provider=Modules\\Theme\\Providers\\ThemeServiceProvider"
+        ]
+    }
+}

@@ -35,7 +35,7 @@ class CreateThemesTable extends Migration
                 'icon' => NULL,
                 'model_name' => 'Modules\\Theme\\Entities\\Theme',
                 'policy_name' => NULL,
-                'controller' => NULL,
+                'controller' => 'Modules\\Theme\\Http\\Controllers\\ThemeController',
                 'description' => NULL,
                 'generate_permissions' => 1,
                 'server_side' => 0,

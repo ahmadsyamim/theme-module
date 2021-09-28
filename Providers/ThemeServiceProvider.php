@@ -4,6 +4,8 @@ namespace Modules\Theme\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Factory;
+use TCG\Voyager\Facades\Voyager;
+use Igaster\LaravelTheme\Facades\Theme as LaravelTheme;
 
 class ThemeServiceProvider extends ServiceProvider
 {
@@ -38,6 +40,13 @@ class ThemeServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->register(RouteServiceProvider::class);
+
+        Voyager::addAction(\Modules\Theme\Http\Actions\Modules\ThemeInstallAction::class);
+
+        //Check default theme
+        if (!LaravelTheme::current() && LaravelTheme::exists('default')) {
+            LaravelTheme::set('default');
+        }
     }
 
     /**

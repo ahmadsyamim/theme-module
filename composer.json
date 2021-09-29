@@ -21,11 +21,17 @@
         }
     },
     "require": {
-        "igaster/laravel-theme": "^2.0"
+        "igaster/laravel-theme": "dev-master"
     },
     "scripts": {
         "post-autoload-dump": [
             "@php artisan vendor:publish --provider=Modules\\Theme\\Providers\\ThemeServiceProvider"
         ]
-    }
+    },
+    "repositories": [        
+        {
+            "type": "git",
+            "url": "https://github.com/ahmadsyamim/laravel-theme.git"
+        }
+    ]
 }

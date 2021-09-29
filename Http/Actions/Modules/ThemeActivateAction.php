@@ -5,8 +5,10 @@ namespace Modules\Theme\Http\Actions\Modules;
 use Modules\Theme\Http\Actions\AbstractAction;
 use Modules\Theme\Entities\Module;
 use Illuminate\Support\Str;
+use Igaster\LaravelTheme\Facades\Theme as LaravelTheme;
+use Modules\Theme\Entities\Theme;
 
-class ThemeInstallAction extends AbstractAction
+class ThemeActivateAction extends AbstractAction
 {
     public function __construct($dataType, $data)
     {
@@ -22,6 +24,14 @@ class ThemeInstallAction extends AbstractAction
         if ($actionParams['type']) {
             if (isset($actionParams['id']) && $actionParams['id']) {
                 $id = $actionParams['id'];
+                $theme = Theme::find($id);
+
+                if (LaravelTheme::get() == $theme->title) {
+                    return 'Current Theme';
+                } else if (!LaravelTheme::exists($theme->title)) {
+                    return 'Install';
+                }
+                
                 // $module = Module::find($id);
                 // $moduleInfo = \Module::find($module->slug);
                 // if ($moduleInfo && $moduleInfo->isStatus(true)) {
@@ -30,7 +40,7 @@ class ThemeInstallAction extends AbstractAction
                 //     return 'Enable';        
                 // }
             }
-            return 'Install';
+            return 'Activate';
         }
         return 'Bulk Install';
     }
@@ -70,10 +80,6 @@ class ThemeInstallAction extends AbstractAction
 
     public function shouldActionDisplayOnDataType()
     {
-        if ($this->dataType->slug == 'themes') {
-            return true;
-        } 
-
         return $this->dataType->slug == 'themes';
     }
 
@@ -81,7 +87,16 @@ class ThemeInstallAction extends AbstractAction
     {
         if (is_array($ids) && $ids[0]) {
             foreach ($ids as $id) {
-               
+                $theme = Theme::find($id);
+                if (LaravelTheme::exists($theme->title) && LaravelTheme::get() != $theme->title) {
+                    session(['theme' => $theme->title]);
+                    LaravelTheme::set($theme->title);
+                } else if (!LaravelTheme::exists($theme->title)) {
+                    // \Artisan::call('theme');
+                    \Artisan::call("theme:install", ['package' => $theme->title]);
+                    // dd(Artisan::output());
+
+                }
             }
         }
         return redirect($comingFrom);

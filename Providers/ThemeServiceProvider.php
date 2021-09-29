@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Factory;
 use TCG\Voyager\Facades\Voyager;
 use Igaster\LaravelTheme\Facades\Theme as LaravelTheme;
+use Illuminate\Contracts\Http\Kernel;
 
 class ThemeServiceProvider extends ServiceProvider
 {
@@ -24,12 +25,15 @@ class ThemeServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(Kernel $kernel)
     {
         $this->registerTranslations();
         $this->registerConfig();
         $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->moduleName, 'Database/Migrations'));
+
+        // $kernel->pushMiddleware(\Modules\Theme\Http\Middleware\SetThemeFromSession::class);
+        $this->app->router->pushMiddlewareToGroup('web', \Modules\Theme\Http\Middleware\SetThemeFromSession::class);
     }
 
     /**
@@ -41,12 +45,8 @@ class ThemeServiceProvider extends ServiceProvider
     {
         $this->app->register(RouteServiceProvider::class);
 
-        Voyager::addAction(\Modules\Theme\Http\Actions\Modules\ThemeInstallAction::class);
-
-        //Check default theme
-        if (!LaravelTheme::current() && LaravelTheme::exists('default')) {
-            LaravelTheme::set('default');
-        }
+        // Voyager::addAction(\Modules\Theme\Http\Actions\Modules\ThemeInstallAction::class);
+        Voyager::addAction(\Modules\Theme\Http\Actions\Modules\ThemeActivateAction::class);
     }
 
     /**

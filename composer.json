@@ -21,6 +21,7 @@
         }
     },
     "require": {
+        "igaster/laravel-theme": "^2.0"
     },
     "scripts": {
         "post-autoload-dump": [

@@ -21,7 +21,7 @@
         }
     },
     "require": {
-        "igaster/laravel-theme": "dev-master"
+        "ahmadsyamim/laravel-theme": "dev-master"
     },
     "scripts": {
         "post-autoload-dump": [

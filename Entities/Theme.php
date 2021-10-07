@@ -4,7 +4,7 @@ namespace Modules\Theme\Entities;
 
 use Illuminate\Database\Eloquent\Model;
 use Igaster\LaravelTheme\Facades\Theme as LaravelTheme;
-
+use Illuminate\Support\Facades\Http;
 
 
 class Theme extends Model

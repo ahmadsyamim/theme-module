@@ -21,7 +21,7 @@ class CreateThemesTable extends Migration
                 $table->string('title')->nullable();
                 $table->text('description')->nullable();
                 $table->string('slug')->nullable();
-                $table->string('path')->nullable();
+                $table->string('url')->nullable();
                 $table->text('status')->nullable();
             });
         }
@@ -107,9 +107,9 @@ class CreateThemesTable extends Migration
             66 => 
             array (
                 'data_type_id' => $data_type_id,
-                'field' => 'path',
+                'field' => 'url',
                 'type' => 'text',
-                'display_name' => 'Path',
+                'display_name' => 'URL',
                 'required' => 0,
                 'browse' => 1,
                 'read' => 1,

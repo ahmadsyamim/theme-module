@@ -13,7 +13,8 @@ class Theme extends Model
 
     protected $fillable = [
         'title',
-        'path'
+        'path',
+        'url',
     ];
 
 

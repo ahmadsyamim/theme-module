@@ -86,10 +86,15 @@ class ThemeActivateAction extends AbstractAction
     public function massAction($ids, $comingFrom)
     {
         if (is_array($ids) && $ids[0]) {
+            session(['theme' => null]);
             foreach ($ids as $id) {
                 $theme = Theme::find($id);
                 if (LaravelTheme::exists($theme->title) && LaravelTheme::get() != $theme->title) {
-                    session(['theme' => $theme->title]);
+                    Theme::where('default', 1)
+                        ->update(['default' => 0]);
+                    $theme->default = 1;
+                    $theme->save();
+                    // session(['theme' => $theme->title]);
                     LaravelTheme::set($theme->title);
                 } else if (!LaravelTheme::exists($theme->title)) {
                     // \Artisan::call('theme');

@@ -23,6 +23,7 @@ class CreateThemesTable extends Migration
                 $table->string('slug')->nullable();
                 $table->string('path')->nullable();
                 $table->string('url')->nullable();
+                $table->tinyInteger('default')->default(0)->nullable();
                 $table->text('status')->nullable();
             });
         }
@@ -138,6 +139,21 @@ class CreateThemesTable extends Migration
             68 => 
             array (
                 'data_type_id' => $data_type_id,
+                'field' => 'default',
+                'type' => 'checkbox',
+                'display_name' => 'Default',
+                'required' => 0,
+                'browse' => 1,
+                'read' => 0,
+                'edit' => 0,
+                'add' => 0,
+                'delete' => 0,
+                'details' => '{}',
+                'order' => 7,
+            ),
+            69 => 
+            array (
+                'data_type_id' => $data_type_id,
                 'field' => 'status',
                 'type' => 'checkbox',
                 'display_name' => 'Status',
@@ -148,7 +164,7 @@ class CreateThemesTable extends Migration
                 'add' => 1,
                 'delete' => 1,
                 'details' => '{}',
-                'order' => 7,
+                'order' => 8,
             ),
         ));
 

@@ -23,6 +23,8 @@ class CreateThemesTable extends Migration
                 $table->string('slug')->nullable();
                 $table->string('path')->nullable();
                 $table->string('url')->nullable();
+                $table->string('sha')->nullable();
+                $table->timestamp('last_update_at')->nullable();
                 $table->tinyInteger('default')->default(0)->nullable();
                 $table->text('status')->nullable();
             });
@@ -98,11 +100,11 @@ class CreateThemesTable extends Migration
                 'type' => 'text',
                 'display_name' => 'Slug',
                 'required' => 0,
-                'browse' => 1,
-                'read' => 1,
-                'edit' => 1,
-                'add' => 1,
-                'delete' => 1,
+                'browse' => 0,
+                'read' => 0,
+                'edit' => 0,
+                'add' => 0,
+                'delete' => 0,
                 'details' => '{}',
                 'order' => 4,
             ),
@@ -113,11 +115,11 @@ class CreateThemesTable extends Migration
                 'type' => 'text',
                 'display_name' => 'Path',
                 'required' => 0,
-                'browse' => 1,
-                'read' => 1,
-                'edit' => 1,
-                'add' => 1,
-                'delete' => 1,
+                'browse' => 0,
+                'read' => 0,
+                'edit' => 0,
+                'add' => 0,
+                'delete' => 0,
                 'details' => '{}',
                 'order' => 5,
             ),

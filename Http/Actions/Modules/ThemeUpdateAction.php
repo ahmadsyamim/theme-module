@@ -8,14 +8,13 @@ use Illuminate\Support\Str;
 use Igaster\LaravelTheme\Facades\Theme as LaravelTheme;
 use Modules\Theme\Entities\Theme;
 
-class ThemeActivateAction extends AbstractAction
+class ThemeUpdateAction extends AbstractAction
 {
     public function __construct($dataType, $data)
     {
         $this->dataType = $dataType;
         $this->data = $data;
-        $this->data = $data;
-        $this->isBulk = false;
+        $this->isBulk = true;
         $this->isSingle = true;
     }
 
@@ -25,29 +24,15 @@ class ThemeActivateAction extends AbstractAction
             if (isset($actionParams['id']) && $actionParams['id']) {
                 $id = $actionParams['id'];
                 $theme = Theme::find($id);
-
-                if (LaravelTheme::get() == $theme->title) {
-                    return 'Current Theme';
-                } else if (!LaravelTheme::exists($theme->title)) {
-                    return 'Install';
-                }
-                
-                // $module = Module::find($id);
-                // $moduleInfo = \Module::find($module->slug);
-                // if ($moduleInfo && $moduleInfo->isStatus(true)) {
-                //     return 'Disable';
-                // } else if ($moduleInfo && !$moduleInfo->isStatus(true)) {
-                //     return 'Enable';        
-                // }
             }
-            return 'Activate';
+            return false;
         }
-        return 'Bulk Install';
+        return 'Check for Updates';
     }
 
     public function getIcon()
     {
-        return 'fas fa-plug';
+        return 'fas fa-sync';
     }
 
     public function getPolicy()
@@ -86,17 +71,23 @@ class ThemeActivateAction extends AbstractAction
     public function massAction($ids, $comingFrom)
     {
         if (is_array($ids) && $ids[0]) {
-            session(['theme' => null]);
             foreach ($ids as $id) {
-                $theme = Theme::find($id);
-                if (LaravelTheme::exists($theme->title)) {
-                    Theme::where('default', 1)
-                        ->update(['default' => 0]);
-                    $theme->default = 1;
-                    $theme->save();
-                    LaravelTheme::set($theme->title);
-                } else if (!LaravelTheme::exists($theme->title)) {
-                    \Artisan::call("theme:install", ['package' => $theme->title]);
+                // $theme = Theme::find($id);
+            }
+        } else {
+            // Mass Action (all)
+            $themes = Theme::all();
+            foreach ($themes as $theme) {
+                $url = false;
+                if ($theme->url) {
+                    $url = $theme->url;
+                }
+                if ($url) {
+                    $responseGH = \Http::get("https://api.github.com/repos/{$url}/commits/master")->collect();
+                    if ($responseGH->count() && $responseGH->get('sha')) {
+                        $theme->sha = $responseGH->get('sha');
+                        $theme->save();
+                    }
                 }
             }
         }

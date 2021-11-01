@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factory;
 use TCG\Voyager\Facades\Voyager;
 use Igaster\LaravelTheme\Facades\Theme as LaravelTheme;
 use Illuminate\Contracts\Http\Kernel;
+use Illuminate\Foundation\AliasLoader;
 
 class ThemeServiceProvider extends ServiceProvider
 {
@@ -47,6 +48,11 @@ class ThemeServiceProvider extends ServiceProvider
 
         // Voyager::addAction(\Modules\Theme\Http\Actions\Modules\ThemeInstallAction::class);
         Voyager::addAction(\Modules\Theme\Http\Actions\Modules\ThemeActivateAction::class);
+        
+        $this->app->register(\Orchestra\Asset\AssetServiceProvider::class);
+        $this->app->register(\Collective\Html\HtmlServiceProvider::class);
+        $loader = AliasLoader::getInstance();
+        $loader->alias('Asset', \Orchestra\Support\Facades\Asset::class);
     }
 
     /**

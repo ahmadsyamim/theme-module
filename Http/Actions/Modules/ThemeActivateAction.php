@@ -89,7 +89,7 @@ class ThemeActivateAction extends AbstractAction
             session(['theme' => null]);
             foreach ($ids as $id) {
                 $theme = Theme::find($id);
-                if (LaravelTheme::exists($theme->title) && LaravelTheme::get() != $theme->title) {
+                if (LaravelTheme::exists($theme->title)) {
                     Theme::where('default', 1)
                         ->update(['default' => 0]);
                     $theme->default = 1;

@@ -5,6 +5,8 @@ namespace Modules\Theme\Entities;
 use Illuminate\Database\Eloquent\Model;
 use Igaster\LaravelTheme\Facades\Theme as LaravelTheme;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 
 class Theme extends Model
@@ -36,14 +38,14 @@ class Theme extends Model
                 if ($response->get('total')) {
                     $results = Collect($response->get('results'))->first();
                     if ($results['name']) {
-                        $responseGH = Http::get("https://raw.githubusercontent.com/{$results['name']}/master/module.json")->collect();
+                        $responseGH = Http::get("https://raw.githubusercontent.com/{$results['name']}/master/composer.json")->collect();
                         if ($responseGH->count()) {
-                            // $model->title = $responseGH->get('name');
+                            $model->title = $responseGH->get('title');
+                            File::put("storage/themes/{$responseGH->get('title')}.theme.tar.gz",file_get_contents("https://raw.githubusercontent.com/{$results['name']}/master/dist/{$responseGH->get('title')}.theme.tar.gz"));
                         }
                     }
                 }
             }
-            // $model->slug = strtolower($model->title);
         });
 
         static::saved(function ($model) {

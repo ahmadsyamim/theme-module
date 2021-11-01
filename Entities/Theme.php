@@ -29,7 +29,7 @@ class Theme extends Model
     {
         parent::boot();
 
-        static::saving(function ($model) {
+        static::creating(function ($model) {
             if (preg_match('%^(?:(?:https?|ftp)://)(?:\S+(?::\S*)?@|\d{1,3}(?:\.\d{1,3}){3}|(?:(?:[a-z\d\x{00a1}-\x{ffff}]+-?)*[a-z\d\x{00a1}-\x{ffff}]+)(?:\.(?:[a-z\d\x{00a1}-\x{ffff}]+-?)*[a-z\d\x{00a1}-\x{ffff}]+)*(?:\.[a-z\x{00a1}-\x{ffff}]{2,6}))(?::\d+)?(?:[^\s]*)?$%iu', $model->url)) {
 
             } else if ($model->url) {
@@ -42,6 +42,12 @@ class Theme extends Model
                         if ($responseGH->count() && $responseGH->get('title')) {
                             $model->title = $responseGH->get('title');
                             File::put("storage/themes/{$responseGH->get('title')}.theme.tar.gz",file_get_contents("https://raw.githubusercontent.com/{$results['name']}/master/dist/{$responseGH->get('title')}.theme.tar.gz"));
+
+                            // Get SHA
+                            $responseGH = \Http::get("https://api.github.com/repos/{$url}/commits/master")->collect();
+                            if ($responseGH->count() && $responseGH->get('sha')) {
+                                $model->current_sha = $responseGH->get('sha');
+                            }
                         }
                     }
                 }

@@ -23,6 +23,7 @@ class CreateThemesTable extends Migration
                 $table->string('slug')->nullable();
                 $table->string('path')->nullable();
                 $table->string('url')->nullable();
+                $table->string('current_sha')->nullable();
                 $table->string('sha')->nullable();
                 $table->timestamp('last_update_at')->nullable();
                 $table->tinyInteger('default')->default(0)->nullable();

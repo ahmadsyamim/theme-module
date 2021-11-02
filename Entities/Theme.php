@@ -50,6 +50,8 @@ class Theme extends Model
                             }
                         }
                     }
+                } else {
+                    throw new \Exception('Unable to find package.');
                 }
             }
         });

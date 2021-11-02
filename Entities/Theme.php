@@ -44,7 +44,7 @@ class Theme extends Model
                             File::put("storage/themes/{$responseGH->get('title')}.theme.tar.gz",file_get_contents("https://raw.githubusercontent.com/{$results['name']}/master/dist/{$responseGH->get('title')}.theme.tar.gz"));
 
                             // Get SHA
-                            $responseGH = \Http::get("https://api.github.com/repos/{$url}/commits/master")->collect();
+                            $responseGH = \Http::get("https://api.github.com/repos/{$model->url}/commits/master")->collect();
                             if ($responseGH->count() && $responseGH->get('sha')) {
                                 $model->current_sha = $responseGH->get('sha');
                             }

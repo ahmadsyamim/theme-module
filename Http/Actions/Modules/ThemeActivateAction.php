@@ -26,19 +26,13 @@ class ThemeActivateAction extends AbstractAction
                 $id = $actionParams['id'];
                 $theme = Theme::find($id);
 
-                if (LaravelTheme::get() == $theme->title) {
+                if ($theme->sha && $theme->current_sha != $theme->sha) {
+                    return 'Update available';
+                } else if (LaravelTheme::get() == $theme->title) {
                     return 'Current Theme';
                 } else if (!LaravelTheme::exists($theme->title)) {
                     return 'Install';
-                }
-                
-                // $module = Module::find($id);
-                // $moduleInfo = \Module::find($module->slug);
-                // if ($moduleInfo && $moduleInfo->isStatus(true)) {
-                //     return 'Disable';
-                // } else if ($moduleInfo && !$moduleInfo->isStatus(true)) {
-                //     return 'Enable';        
-                // }
+                } 
             }
             return 'Activate';
         }
@@ -86,16 +80,34 @@ class ThemeActivateAction extends AbstractAction
     public function massAction($ids, $comingFrom)
     {
         if (is_array($ids) && $ids[0]) {
-            session(['theme' => null]);
             foreach ($ids as $id) {
                 $theme = Theme::find($id);
-                if (LaravelTheme::exists($theme->title)) {
+                if ($theme->sha && $theme->current_sha != $theme->sha) {
+                    //Update
+                    $responseGH = \Http::get("https://raw.githubusercontent.com/{$theme->url}/master/composer.json")->collect();
+                    if ($responseGH->count() && $responseGH->get('title')) {
+                        \File::delete("storage/themes/{$responseGH->get('title')}.theme.tar.gz");
+                        \File::put("storage/themes/{$responseGH->get('title')}.theme.tar.gz",file_get_contents("https://raw.githubusercontent.com/{$theme->url}/master/dist/{$responseGH->get('title')}.theme.tar.gz"));
+
+                        \Artisan::call("theme:remove {$theme->title} --force");
+                        \Artisan::call("theme:install", ['package' => $theme->title]);
+
+                        // Get SHA
+                        $responseGH = \Http::get("https://api.github.com/repos/{$theme->url}/commits/master")->collect();
+                        if ($responseGH->count() && $responseGH->get('sha')) {
+                            $theme->current_sha = $responseGH->get('sha');
+                            $theme->save();
+                        }
+                    }
+                } else if (LaravelTheme::exists($theme->title)) {
+                    // Set default
                     Theme::where('default', 1)
                         ->update(['default' => 0]);
                     $theme->default = 1;
                     $theme->save();
                     LaravelTheme::set($theme->title);
                 } else if (!LaravelTheme::exists($theme->title)) {
+                    // Activate
                     \Artisan::call("theme:install", ['package' => $theme->title]);
                 }
             }

@@ -85,7 +85,7 @@ class ThemeUpdateAction extends AbstractAction
                 if ($url) {
                     $responseGH = \Http::get("https://api.github.com/repos/{$url}/commits/master")->collect();
                     if ($responseGH->count() && $responseGH->get('sha')) {
-                        $theme->current_sha = $responseGH->get('sha');
+                        $theme->sha = $responseGH->get('sha');
                         $theme->save();
                     }
                 }

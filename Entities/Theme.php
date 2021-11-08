@@ -55,10 +55,5 @@ class Theme extends Model
                 }
             }
         });
-
-        static::saved(function ($model) {
-        });
-
-    }
-    
+    }   
 }

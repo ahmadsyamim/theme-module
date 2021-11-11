@@ -23,6 +23,7 @@ class CreateThemesTable extends Migration
                 $table->string('slug')->nullable();
                 $table->string('path')->nullable();
                 $table->string('url')->nullable();
+                $table->text('json_fields')->nullable();
                 $table->string('current_sha')->nullable();
                 $table->string('sha')->nullable();
                 $table->timestamp('last_update_at')->nullable();
@@ -168,6 +169,21 @@ class CreateThemesTable extends Migration
                 'delete' => 1,
                 'details' => '{}',
                 'order' => 8,
+            ),
+            70 => 
+            array (
+                'data_type_id' => $data_type_id,
+                'field' => 'json_fields',
+                'type' => 'json_fields',
+                'display_name' => 'Json Fields',
+                'required' => 0,
+                'browse' => 1,
+                'read' => 1,
+                'edit' => 1,
+                'add' => 1,
+                'delete' => 1,
+                'details' => '{}',
+                'order' => 9,
             ),
         ));
 

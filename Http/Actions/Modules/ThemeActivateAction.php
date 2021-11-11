@@ -92,6 +92,10 @@ class ThemeActivateAction extends AbstractAction
                         \Artisan::call("theme:remove {$theme->title} --force");
                         \Artisan::call("theme:install", ['package' => $theme->title]);
 
+                        if ($theme->default) {
+                            LaravelTheme::set($theme->title);
+                        }
+
                         // Get SHA
                         $responseGH = \Http::get("https://api.github.com/repos/{$theme->url}/commits/master")->collect();
                         if ($responseGH->count() && $responseGH->get('sha')) {

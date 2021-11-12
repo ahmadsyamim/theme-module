@@ -46,9 +46,9 @@ class ThemeServiceProvider extends ServiceProvider
     {
         $this->app->register(RouteServiceProvider::class);
 
-        // Voyager::addAction(\Modules\Theme\Http\Actions\Modules\ThemeInstallAction::class);
         Voyager::addAction(\Modules\Theme\Http\Actions\Modules\ThemeActivateAction::class);
         Voyager::addAction(\Modules\Theme\Http\Actions\Modules\ThemeUpdateAction::class);
+        Voyager::addAction(\Modules\Theme\Http\Actions\Modules\ThemeUninstallAction::class);
         
         $this->app->register(\Orchestra\Asset\AssetServiceProvider::class);
         $this->app->register(\Collective\Html\HtmlServiceProvider::class);

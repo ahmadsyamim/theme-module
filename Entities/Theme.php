@@ -7,6 +7,8 @@ use Igaster\LaravelTheme\Facades\Theme as LaravelTheme;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 
 
 class Theme extends Model
@@ -38,22 +40,62 @@ class Theme extends Model
                 if ($response->get('total')) {
                     $results = Collect($response->get('results'))->first();
                     if ($results['name']) {
-                        $responseGH = Http::get("https://raw.githubusercontent.com/{$results['name']}/master/composer.json")->collect();
-                        if ($responseGH->count() && $responseGH->get('title')) {
-                            $model->title = $responseGH->get('title');
-                            File::put("storage/themes/{$responseGH->get('title')}.theme.tar.gz",file_get_contents("https://raw.githubusercontent.com/{$results['name']}/master/dist/{$responseGH->get('title')}.theme.tar.gz"));
-
-                            // Get SHA
-                            $responseGH = \Http::get("https://api.github.com/repos/{$model->url}/commits/master")->collect();
-                            if ($responseGH->count() && $responseGH->get('sha')) {
-                                $model->current_sha = $responseGH->get('sha');
-                            }
+                        $process = Process::fromShellCommandline(sprintf(
+                            'cd %s && composer require %s',
+                            base_path(),
+                            $results['name'],
+                        ), null, ['COMPOSER_HOME' => getenv('COMPOSER_HOME')]);
+                        $process->run();
+                        // executes after the command finishes
+                        if (!$process->isSuccessful()) {
+                            throw new ProcessFailedException($process);
                         }
+                        $output = json_decode($process->getOutput());  
+
+                        // Verify success
+                        $process = Process::fromShellCommandline(sprintf(
+                            'cd %s && composer info --self --format=json',
+                            base_path("vendor/{$results['name']}"),
+                        ), null, ['COMPOSER_HOME' => getenv('COMPOSER_HOME')]);
+                        $process->run();
+                        // executes after the command finishes
+                        if (!$process->isSuccessful()) {
+                            throw new ProcessFailedException($process);
+                        }
+                        $output = json_decode($process->getOutput()); 
+                        if ($output->type != 'laravel-module-theme') {
+                            throw new \Exception('Package type is not laravel-module-theme');
+                        }
+
+                        // Get Composer info
+                        $json = Collect(json_decode(file_get_contents(base_path("vendor/{$results['name']}/composer.json")), true));
+                        if ($json->get('title')) {
+                            File::put("storage/themes/{$json->get('title')}.theme.tar.gz", file_get_contents(base_path("vendor/{$results['name']}/dist/{$json->get('title')}.theme.tar.gz")));
+                            $model->title = $json->get('title');
+                            $model->current_sha = $model->sha;
+
+                            \Artisan::call("theme:install", ['package' => $json->get('title')]);
+                        }                       
                     }
                 } else {
                     throw new \Exception('Unable to find package.');
                 }
             }
         });
-    }   
+    }
+    
+    private function installPackage($name){
+        $process = Process::fromShellCommandline(sprintf(
+            'cd %s && composer require %s',
+            base_path(),
+            $name,
+        ), null, ['COMPOSER_HOME' => getenv('COMPOSER_HOME')]);
+        $process->run();
+        // executes after the command finishes
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+        $output = json_decode($process->getOutput());    
+        return $output;
+    }
 }

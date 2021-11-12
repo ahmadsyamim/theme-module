@@ -5,8 +5,10 @@ namespace Modules\Theme\Http\Actions\Modules;
 use Modules\Theme\Http\Actions\AbstractAction;
 use Modules\Theme\Entities\Module;
 use Illuminate\Support\Str;
+use Igaster\LaravelTheme\Facades\Theme as LaravelTheme;
+use Modules\Theme\Entities\Theme;
 
-class ThemeInstallAction extends AbstractAction
+class ThemeUninstallAction extends AbstractAction
 {
     public function __construct($dataType, $data)
     {
@@ -22,22 +24,18 @@ class ThemeInstallAction extends AbstractAction
         if ($actionParams['type']) {
             if (isset($actionParams['id']) && $actionParams['id']) {
                 $id = $actionParams['id'];
-                // $module = Module::find($id);
-                // $moduleInfo = \Module::find($module->slug);
-                // if ($moduleInfo && $moduleInfo->isStatus(true)) {
-                //     return 'Disable';
-                // } else if ($moduleInfo && !$moduleInfo->isStatus(true)) {
-                //     return 'Enable';        
-                // }
+                $theme = Theme::find($id);
+                if ($theme->title == 'default') { return false; }
+
+                return 'Uninstall';
             }
-            return 'Install';
         }
         return 'Bulk Install';
     }
 
     public function getIcon()
     {
-        return 'fas fa-plug';
+        return 'fas fa-trash';
     }
 
     public function getPolicy()
@@ -50,7 +48,7 @@ class ThemeInstallAction extends AbstractAction
         $type = $actionParams['type'] ?? ['type'=>false];
         if ($type == 'single') {
             return [
-                'class' => 'ui primary button right floated'
+                'class' => 'ui danger button right floated'
             ];
         } else if ($type == 'widget') {
             return [
@@ -70,10 +68,6 @@ class ThemeInstallAction extends AbstractAction
 
     public function shouldActionDisplayOnDataType()
     {
-        if ($this->dataType->slug == 'themes') {
-            return true;
-        } 
-
         return $this->dataType->slug == 'themes';
     }
 
@@ -81,7 +75,17 @@ class ThemeInstallAction extends AbstractAction
     {
         if (is_array($ids) && $ids[0]) {
             foreach ($ids as $id) {
-               
+                $theme = Theme::find($id);
+                if ($theme->title == 'default') { continue; }
+                \Artisan::call("theme:remove {$theme->title} --force");
+                if ($theme->default) {
+                    Theme::where('default', 1)
+                        ->update(['default' => 0]);
+                    Theme::where('title', 'default')
+                        ->update(['default' => 1]);
+                    LaravelTheme::set('default');
+                }
+                $theme->delete();
             }
         }
         return redirect($comingFrom);

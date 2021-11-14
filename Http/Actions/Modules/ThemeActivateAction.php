@@ -27,7 +27,7 @@ class ThemeActivateAction extends AbstractAction
                 $theme = Theme::find($id);
 
                 if ($theme->sha && $theme->current_sha != $theme->sha) {
-                    return 'Update available';
+                    return false;
                 } else if (LaravelTheme::get() == $theme->title) {
                     return 'Current Theme';
                 } else if (!LaravelTheme::exists($theme->title)) {
@@ -82,28 +82,7 @@ class ThemeActivateAction extends AbstractAction
         if (is_array($ids) && $ids[0]) {
             foreach ($ids as $id) {
                 $theme = Theme::find($id);
-                if ($theme->sha && $theme->current_sha != $theme->sha) {
-                    //Update
-                    $responseGH = \Http::get("https://raw.githubusercontent.com/{$theme->url}/master/composer.json")->collect();
-                    if ($responseGH->count() && $responseGH->get('title')) {
-                        \File::delete("storage/themes/{$responseGH->get('title')}.theme.tar.gz");
-                        \File::put("storage/themes/{$responseGH->get('title')}.theme.tar.gz",file_get_contents("https://raw.githubusercontent.com/{$theme->url}/master/dist/{$responseGH->get('title')}.theme.tar.gz"));
-
-                        \Artisan::call("theme:remove {$theme->title} --force");
-                        \Artisan::call("theme:install", ['package' => $theme->title]);
-
-                        if ($theme->default) {
-                            LaravelTheme::set($theme->title);
-                        }
-
-                        // Get SHA
-                        $responseGH = \Http::get("https://api.github.com/repos/{$theme->url}/commits/master")->collect();
-                        if ($responseGH->count() && $responseGH->get('sha')) {
-                            $theme->current_sha = $responseGH->get('sha');
-                            $theme->save();
-                        }
-                    }
-                } else if (LaravelTheme::exists($theme->title)) {
+                if (LaravelTheme::exists($theme->title)) {
                     // Set default
                     Theme::where('default', 1)
                         ->update(['default' => 0]);

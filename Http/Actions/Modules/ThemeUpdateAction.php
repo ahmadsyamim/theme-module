@@ -26,6 +26,9 @@ class ThemeUpdateAction extends AbstractAction
             if (isset($actionParams['id']) && $actionParams['id']) {
                 $id = $actionParams['id'];
                 $theme = Theme::find($id);
+                if ($theme->sha && $theme->sha != $theme->current_sha) {                
+                    return 'Update available';
+                }
             }
             return false;
         }
@@ -74,7 +77,36 @@ class ThemeUpdateAction extends AbstractAction
     {
         if (is_array($ids) && $ids[0]) {
             foreach ($ids as $id) {
-                // $theme = Theme::find($id);
+                $theme = Theme::find($id);
+                if ($theme->url) {
+                    $updatePackage = $this->updatePackage($theme);
+                    $output = $this->checkOutdatedPackages();
+                    $success = true;
+                    foreach ($output as $o) {
+                        if ($o->name == $theme->url) {
+                            $success = false;
+                            break;
+                        } 
+                    }
+                    // Get Composer info
+                    $json = Collect(json_decode(file_get_contents(base_path("vendor/{$theme->url}/composer.json")), true));
+                    if ($success && $json->get('title')) {
+                        \File::delete("storage/themes/{$json->get('title')}.theme.tar.gz");
+                        \File::put("storage/themes/{$json->get('title')}.theme.tar.gz", file_get_contents(base_path("vendor/{$theme->url}/dist/{$json->get('title')}.theme.tar.gz")));
+
+                        \Artisan::call("theme:remove {$json->get('title')} --force");
+                        \Artisan::call("theme:install", ['package' => $json->get('title')]);
+                        
+                        if ($theme->default) {
+                            LaravelTheme::set($theme->title);
+                        }
+
+                        $theme->current_sha = $theme->sha;
+                        $theme->last_update_at = \Carbon\Carbon::now();
+                        $theme->save();
+
+                    }
+                } 
             }
         } else {
             // Mass Action (all)
@@ -113,5 +145,20 @@ class ThemeUpdateAction extends AbstractAction
         }
         $output = json_decode($process->getOutput());    
         return $output->installed;
+    }
+
+    private function updatePackage($theme){
+        $process = Process::fromShellCommandline(sprintf(
+            'cd %s && composer update %s',
+            base_path(),
+            $theme->url
+        ), null, ['COMPOSER_HOME' => getenv('COMPOSER_HOME')]);
+        $process->run();
+        // executes after the command finishes
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+        $output = json_decode($process->getOutput());    
+        return $output;
     }
 }

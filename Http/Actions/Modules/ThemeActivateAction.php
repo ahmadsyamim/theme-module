@@ -6,6 +6,8 @@ use Modules\Theme\Http\Actions\AbstractAction;
 use Modules\Theme\Entities\Module;
 use Illuminate\Support\Str;
 use Igaster\LaravelTheme\Facades\Theme as LaravelTheme;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Modules\Theme\Entities\Theme;
 
 class ThemeActivateAction extends AbstractAction
@@ -92,13 +94,31 @@ class ThemeActivateAction extends AbstractAction
                 } else if (!LaravelTheme::exists($theme->title)) {
                     // Activate
                     \Artisan::call("theme:install", ['package' => $theme->title]);
+                    $output = \Artisan::output();
+                    if (strpos($output, 'Will not be installed') !== false) {
+                        $start = strpos($output, '[')+1;
+                        $end = strpos($output,']',$start);
+                        $path = substr($output, $start, $end-$start);
+                        if(File::isDirectory($path)) {
+                            File::deleteDirectory($path);
+                        }
+                        $start = strpos($output, '[',$end)+1;
+                        $end = strpos($output,']',$start);
+                        $path = substr($output, $start, $end-$start);
+                        if(File::isDirectory($path)) {
+                            File::deleteDirectory($path);
+                        }
+                        \Artisan::call("theme:install", ['package' => $theme->title]);
+                        $output = \Artisan::output();
+                    }
                 }
             }
         }
         return redirect($comingFrom);
     }
 
-    private function isUrl($url){
+    private function isUrl($url)
+    {
         return preg_match('%^(?:(?:https?|ftp)://)(?:\S+(?::\S*)?@|\d{1,3}(?:\.\d{1,3}){3}|(?:(?:[a-z\d\x{00a1}-\x{ffff}]+-?)*[a-z\d\x{00a1}-\x{ffff}]+)(?:\.(?:[a-z\d\x{00a1}-\x{ffff}]+-?)*[a-z\d\x{00a1}-\x{ffff}]+)*(?:\.[a-z\x{00a1}-\x{ffff}]{2,6}))(?::\d+)?(?:[^\s]*)?$%iu', $url);
     }
 }

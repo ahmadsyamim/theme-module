@@ -31,7 +31,8 @@ class Theme extends Model
     {
         parent::boot();
 
-        static::creating(function ($model) {
+        static::creating(function ($model) 
+        {
             if (preg_match('%^(?:(?:https?|ftp)://)(?:\S+(?::\S*)?@|\d{1,3}(?:\.\d{1,3}){3}|(?:(?:[a-z\d\x{00a1}-\x{ffff}]+-?)*[a-z\d\x{00a1}-\x{ffff}]+)(?:\.(?:[a-z\d\x{00a1}-\x{ffff}]+-?)*[a-z\d\x{00a1}-\x{ffff}]+)*(?:\.[a-z\x{00a1}-\x{ffff}]{2,6}))(?::\d+)?(?:[^\s]*)?$%iu', $model->url)) {
 
             } else if ($model->url) {
@@ -80,6 +81,27 @@ class Theme extends Model
                 } else {
                     throw new \Exception('Unable to find package.');
                 }
+            }
+        });
+
+        static::saving(function ($model) 
+        {
+            $settings = \Request::get('theme_setting');
+            if ($settings) {
+                $model->json_fields = json_encode($settings);
+
+                foreach ($settings as $name => $value)  {
+                    if (is_array($value)) {
+                        foreach ($value as $n => $v) {
+                            if (!is_array($v)) {
+                                LaravelTheme::setSetting($value.'.'.$n,$v);
+                            }
+                        }
+                    } else {
+                        LaravelTheme::setSetting($name,$value);
+                    }
+                }
+                \Artisan::call("theme:refresh-cache");
             }
         });
     }

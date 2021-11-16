@@ -20,12 +20,12 @@ class SetThemeFromSession
     {
         //Check default theme
         $theme = Theme::where('default',1)->get();
-        if(session()->has('theme') && LaravelTheme::exists(session('theme'))) {
-            LaravelTheme::set(session('theme'));
-        } else if ($theme->count() && LaravelTheme::exists($theme->first()->title)) {
-            // session(['theme' => $theme->first()->title]);
+        if ($theme->count() && LaravelTheme::exists($theme->first()->title)) {
             LaravelTheme::set($theme->first()->title);
         } else if (LaravelTheme::exists('default')) {
+            if (!Theme::where('default', 1)->count()) {
+                Theme::where('title', 'default')->update(['default' => 1]);
+            }
             LaravelTheme::set('default');
         }
         return $next($request);

@@ -57,9 +57,14 @@ class ThemeController extends \TCG\Voyager\Http\Controllers\VoyagerBaseControlle
             $themes = LaravelTheme::all();
             foreach ($themes as $theme) {
                 if (!$model::where('title',$theme->name)->get()->count()) {
+                    $json = Collect(json_decode(file_get_contents(themes_path("{$theme->viewsPath}/theme.json")), true));
+                    $themeData = ['path' => $theme->viewsPath, 'title' => $theme->name];
+                    if ($json->get('package_name')) {
+                        $themeData['url'] = $json->get('package_name');
+                    }   
                     $model::updateOrCreate(
-                        ['path' => $theme->viewsPath],
-                        ['title' => $theme->name]
+                        ['title' => $theme->name],
+                        $themeData,
                     );
                 }
             }

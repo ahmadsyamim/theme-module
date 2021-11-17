@@ -192,7 +192,7 @@ class CreateThemesTable extends Migration
             array (
                 'menu_id' => 1,
                 'title' => 'Themes',
-                'url' => '',
+                'url' => 'ahmadsyamim/frontend-default-theme',
                 'target' => '_self',
                 'icon_class' => NULL,
                 'color' => NULL,

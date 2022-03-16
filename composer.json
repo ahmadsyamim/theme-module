@@ -22,8 +22,8 @@
     },
     "require": {
         "ahmadsyamim/laravel-theme": "dev-master",
-        "orchestra/asset": "^6.1",
-        "orchestra/support": "^6.1"
+        "orchestra/asset": "^6.1 | ^7.0",
+        "orchestra/support": "^6.1 | ^7.0"
     },
     "scripts": {
         "post-autoload-dump": [

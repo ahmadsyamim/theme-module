@@ -22,7 +22,7 @@
     },
     "require": {
         "ahmadsyamim/laravel-theme": "dev-master",
-        "orchestra/asset": "^7.0",
+        "orchestra/asset": "^6.1",
         "orchestra/support": "^7.0"
     },
     "scripts": {

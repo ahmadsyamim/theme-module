@@ -21,7 +21,8 @@
         }
     },
     "require": {
-        "ahmadsyamim/laravel-theme": "dev-master"
+        "ahmadsyamim/laravel-theme": "dev-master",
+        "laravelcollective/html": "^6.3"
     },
     "scripts": {
         "post-autoload-dump": [

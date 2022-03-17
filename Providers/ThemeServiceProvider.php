@@ -50,10 +50,10 @@ class ThemeServiceProvider extends ServiceProvider
         Voyager::addAction(\Modules\Theme\Http\Actions\Modules\ThemeUpdateAction::class);
         Voyager::addAction(\Modules\Theme\Http\Actions\Modules\ThemeUninstallAction::class);
         
-        $this->app->register(\Orchestra\Asset\AssetServiceProvider::class);
         $this->app->register(\Collective\Html\HtmlServiceProvider::class);
         $loader = AliasLoader::getInstance();
-        $loader->alias('Asset', \Orchestra\Support\Facades\Asset::class);
+        $loader->alias('Form', \Collective\Html\FormFacade::class);
+        $loader->alias('HTML', \Collective\Html\HtmlFacade::class);
     }
 
     /**

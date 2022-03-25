@@ -194,7 +194,7 @@ class CreateThemesTable extends Migration
                 'title' => 'Themes',
                 'url' => '',
                 'target' => '_self',
-                'icon_class' => NULL,
+                'icon_class' => 'voyager-brush',
                 'color' => NULL,
                 'parent_id' => NULL,
                 'order' => 10,

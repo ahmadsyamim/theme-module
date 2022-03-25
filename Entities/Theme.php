@@ -49,6 +49,11 @@ class Theme extends Model
                         $process->run();
                         // executes after the command finishes
                         if (!$process->isSuccessful()) {
+                            $redirect = redirect()->back();            
+                            return $redirect->with([
+                                'message'    => __('Update Process Failed.')." {$model->url}",
+                                'alert-type' => 'error',
+                            ]);
                             throw new ProcessFailedException($process);
                         }
                         $output = json_decode($process->getOutput());  
@@ -79,7 +84,11 @@ class Theme extends Model
                         }                       
                     }
                 } else {
-                    throw new \Exception('Unable to find package.');
+                    $redirect = redirect()->back();            
+                    return $redirect->with([
+                        'message'    => __('Unable to find package.')." {$model->url}",
+                        'alert-type' => 'error',
+                    ]);
                 }
             }
         });
